@@ -1,0 +1,167 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+
+export default function Login() {
+  const [role, setRole] = useState("citizen"); // 'citizen' or 'admin'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+
+    if (!email.trim() || !password) {
+      setError("Please enter both your email and password.");
+      return;
+    }
+
+    login(email, "", role);
+    navigate(role === "admin" ? "/admin" : "/home");
+  }
+
+  return (
+    <div className="flex min-h-[80vh] items-center justify-center px-4 py-6">
+      <div className="w-full max-w-md space-y-5 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <ShieldAlert size={24} />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            Sign In
+          </h1>
+          <p className="text-xs text-slate-500">
+            Select your account role to continue to the portal.
+          </p>
+        </div>
+
+        {error && (
+          <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-xs text-rose-600 text-center font-medium">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Role Choice Toggle */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Sign In As
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("citizen")}
+                className={`flex items-center justify-center gap-1.5 rounded-lg border py-2.5 px-3 text-xs font-semibold transition cursor-pointer ${
+                  role === "citizen"
+                    ? "border-indigo-600 bg-indigo-50 text-indigo-600"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <User size={14} />
+                <span>Citizen</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRole("admin")}
+                className={`flex items-center justify-center gap-1.5 rounded-lg border py-2.5 px-3 text-xs font-semibold transition cursor-pointer ${
+                  role === "admin"
+                    ? "border-indigo-600 bg-indigo-50 text-indigo-600"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <ShieldCheck size={14} />
+                <span>Gov Official</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Password
+            </label>
+            <div className="relative">
+              <Lock
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-10 text-xs text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700 transition cursor-pointer shadow-sm"
+          >
+            <span>
+              Sign In as {role === "admin" ? "Gov Official" : "Citizen"}
+            </span>
+            <ArrowRight size={14} />
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-indigo-600 hover:text-indigo-700"
+          >
+            Create account
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
