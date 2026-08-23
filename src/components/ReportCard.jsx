@@ -22,13 +22,15 @@ export default function ReportCard({ report }) {
     >
       <div className="mb-2 flex items-center justify-between">
         <span
-          className={`text-xs font-semibold tracking-wide ${isRedFlag ? "text-brand" : "text-intervention"}`}
+          className={`text-xs font-semibold tracking-wide ${
+            isRedFlag ? "text-brand" : "text-intervention"
+          }`}
         >
           {report.id}
         </span>
         <StatusBadge status={report.status} />
       </div>
-      <h3 className="mb-2 text-sm font-semibold leading-snug text-navy">
+      <h3 className="text-navy mb-2 text-sm font-semibold leading-snug">
         {report.title}
       </h3>
       <div className="flex items-center justify-between text-xs text-neutral-500">

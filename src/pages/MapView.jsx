@@ -7,6 +7,12 @@ import { getReports } from "../data/mockReports";
 
 const DEFAULT_CENTER = [-1.286389, 36.817223];
 
+const STATUS_COLORS = {
+  Resolved: "#10b981",
+  "In Progress": "#f59e0b",
+  Pending: "#f43f5e",
+};
+
 export default function MapView() {
   const navigate = useNavigate();
   const mapContainerRef = useRef(null);
@@ -24,12 +30,7 @@ export default function MapView() {
     }).addTo(map);
 
     reports.forEach((item) => {
-      const color =
-        item.status === "Resolved"
-          ? "#10b981"
-          : item.status === "In Progress"
-            ? "#f59e0b"
-            : "#f43f5e";
+      const color = STATUS_COLORS[item.status] || STATUS_COLORS.Pending;
 
       const customIcon = L.divIcon({
         className: "custom-pin",
@@ -60,11 +61,12 @@ export default function MapView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3 flex-wrap gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="text-slate-500 hover:text-slate-800 cursor-pointer"
+            className="cursor-pointer text-slate-500 hover:text-slate-800"
           >
             <ChevronLeft size={18} />
           </button>
@@ -73,21 +75,23 @@ export default function MapView() {
           </h1>
         </div>
 
-        <div className="flex gap-2 text-[10px] font-semibold flex-wrap">
+        <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-rose-500"></span>Pending
+            <span className="h-2 w-2 rounded-full bg-rose-500" />
+            Pending
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span>Active
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+            Active
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Resolved
           </span>
         </div>
       </div>
 
-      <div className="h-[280px] sm:h-[350px] md:h-[420px] w-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm relative z-0">
+      <div className="relative z-0 h-[280px] w-full overflow-hidden rounded-2xl border border-slate-200 shadow-sm sm:h-[350px] md:h-[420px]">
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
     </div>

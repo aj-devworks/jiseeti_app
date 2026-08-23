@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ChevronLeft,
-  Navigation,
-  Camera,
-  Loader2,
-  X,
-  Lock,
-} from "lucide-react";
+import { ChevronLeft, Navigation, Camera, Loader2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { createReport, REPORT_TYPES } from "../data/mockReports";
 
@@ -23,18 +16,14 @@ export default function CreateRecord() {
   const [isLocating, setIsLocating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Redirect to login if user is not authenticated
   useEffect(() => {
     if (!user) {
       navigate("/login", { replace: true });
     }
   }, [user, navigate]);
 
-  if (!user) {
-    return null; // Prevents screen flash before redirecting
-  }
+  if (!user) return null;
 
-  // GPS Auto-Detection
   const handleGetLocation = () => {
     if (!navigator.geolocation) return alert("Geolocation is not supported.");
     setIsLocating(true);
@@ -54,7 +43,6 @@ export default function CreateRecord() {
     );
   };
 
-  // Image Upload Handling
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -81,11 +69,12 @@ export default function CreateRecord() {
   }
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+    <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
         <button
+          type="button"
           onClick={() => navigate(-1)}
-          className="text-slate-500 hover:text-slate-800 cursor-pointer"
+          className="cursor-pointer text-slate-500 hover:text-slate-800"
         >
           <ChevronLeft size={18} />
         </button>
@@ -95,17 +84,17 @@ export default function CreateRecord() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Category Choice */}
         <div>
-          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">
+          <label className="mb-1.5 block text-[10px] font-bold uppercase text-slate-400">
             Category
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setType(REPORT_TYPES.RED_FLAG)}
-              className={`p-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition ${
+              className={`cursor-pointer rounded-xl border p-2.5 text-xs font-semibold transition ${
                 type === REPORT_TYPES.RED_FLAG
                   ? "border-rose-600 bg-rose-50 text-rose-600"
-                  : "border-slate-200 text-slate-600"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
               Red-Flag (Hazard)
@@ -113,10 +102,10 @@ export default function CreateRecord() {
             <button
               type="button"
               onClick={() => setType(REPORT_TYPES.INTERVENTION)}
-              className={`p-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition ${
+              className={`cursor-pointer rounded-xl border p-2.5 text-xs font-semibold transition ${
                 type === REPORT_TYPES.INTERVENTION
                   ? "border-indigo-600 bg-indigo-50 text-indigo-600"
-                  : "border-slate-200 text-slate-600"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
               Intervention
@@ -126,7 +115,7 @@ export default function CreateRecord() {
 
         {/* Title */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             Title
           </label>
           <input
@@ -140,7 +129,7 @@ export default function CreateRecord() {
 
         {/* Description */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             Description
           </label>
           <textarea
@@ -148,13 +137,13 @@ export default function CreateRecord() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Provide context or severity details..."
-            className="w-full rounded-lg border border-slate-200 p-2.5 text-xs focus:border-indigo-600 focus:outline-none resize-none"
+            className="w-full resize-none rounded-lg border border-slate-200 p-2.5 text-xs focus:border-indigo-600 focus:outline-none"
           />
         </div>
 
         {/* Location + GPS */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             Location
           </label>
           <div className="flex gap-2">
@@ -168,7 +157,7 @@ export default function CreateRecord() {
               type="button"
               onClick={handleGetLocation}
               disabled={isLocating}
-              className="flex items-center gap-1 shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600 hover:bg-indigo-100 transition cursor-pointer"
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100 disabled:opacity-50"
             >
               {isLocating ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -182,28 +171,28 @@ export default function CreateRecord() {
 
         {/* Photo Upload */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
             Attach Photo Evidence
           </label>
           {imagePreview ? (
-            <div className="relative rounded-xl overflow-hidden border border-slate-200 h-32">
+            <div className="relative h-32 overflow-hidden rounded-xl border border-slate-200">
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
               <button
                 type="button"
                 onClick={() => setImagePreview(null)}
-                className="absolute top-2 right-2 rounded-full bg-slate-900/70 p-1 text-white hover:bg-slate-900 cursor-pointer"
+                className="absolute top-2 right-2 cursor-pointer rounded-full bg-slate-900/70 p-1 text-white hover:bg-slate-900"
               >
                 <X size={14} />
               </button>
             </div>
           ) : (
-            <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
-              <Camera size={20} className="text-slate-400 mb-1" />
-              <span className="text-[11px] text-slate-500 font-medium">
+            <label className="flex h-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 transition hover:bg-slate-50">
+              <Camera size={20} className="mb-1 text-slate-400" />
+              <span className="text-[11px] font-medium text-slate-500">
                 Click to upload photo
               </span>
               <input
@@ -218,7 +207,7 @@ export default function CreateRecord() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-indigo-600 py-3 text-xs font-semibold text-white hover:bg-indigo-700 transition cursor-pointer shadow-sm"
+          className="w-full cursor-pointer rounded-xl bg-indigo-600 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
         >
           Submit Report
         </button>
