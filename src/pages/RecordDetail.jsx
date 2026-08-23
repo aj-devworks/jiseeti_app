@@ -27,7 +27,6 @@ export default function RecordDetail() {
   const [report, setReport] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Edit form state
   const [editTitle, setEditTitle] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editLocation, setEditLocation] = useState("");
@@ -53,7 +52,6 @@ export default function RecordDetail() {
   const isCitizen = user?.role === "citizen" || !user?.role;
   const isAdmin = user?.role === "admin";
 
-  // Citizen Actions
   function handleSaveDetails(e) {
     e.preventDefault();
     updateReportDetails(id, {
@@ -77,7 +75,6 @@ export default function RecordDetail() {
     }
   }
 
-  // Admin Action
   function handleStatusChange(newStatus) {
     updateReportStatus(id, newStatus);
     setReport({ ...report, status: newStatus });
@@ -88,27 +85,29 @@ export default function RecordDetail() {
       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="text-slate-500 hover:text-slate-800 cursor-pointer"
+            className="cursor-pointer text-slate-500 hover:text-slate-800"
           >
             <ChevronLeft size={18} />
           </button>
           <h1 className="text-sm font-bold text-slate-900">Report Details</h1>
         </div>
 
-        {/* Citizen Edit & Delete Buttons */}
         {isCitizen && !isEditing && (
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             >
               <Edit3 size={13} />
               <span>Edit</span>
             </button>
             <button
+              type="button"
               onClick={handleDelete}
-              className="flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-100 cursor-pointer"
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-100"
             >
               <Trash2 size={13} />
               <span>Delete</span>
@@ -117,19 +116,18 @@ export default function RecordDetail() {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
+      <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">
             {report.type}
           </span>
           <StatusBadge status={report.status} />
         </div>
 
-        {/* CITIZEN EDIT FORM */}
         {isEditing ? (
           <form onSubmit={handleSaveDetails} className="space-y-3">
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+              <label className="mb-1 block text-[10px] font-bold uppercase text-slate-400">
                 Title
               </label>
               <input
@@ -142,19 +140,19 @@ export default function RecordDetail() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+              <label className="mb-1 block text-[10px] font-bold uppercase text-slate-400">
                 Description
               </label>
               <textarea
                 rows={3}
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:border-indigo-600 focus:outline-none resize-none"
+                className="w-full resize-none rounded-lg border border-slate-200 p-2 text-xs focus:border-indigo-600 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+              <label className="mb-1 block text-[10px] font-bold uppercase text-slate-400">
                 Location
               </label>
               <input
@@ -169,14 +167,14 @@ export default function RecordDetail() {
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 cursor-pointer"
+                className="flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
               >
                 <X size={13} />
                 <span>Cancel</span>
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 cursor-pointer"
+                className="flex cursor-pointer items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
               >
                 <Check size={13} />
                 <span>Save Changes</span>
@@ -184,16 +182,15 @@ export default function RecordDetail() {
             </div>
           </form>
         ) : (
-          /* READ-ONLY DISPLAY */
           <>
             <h2 className="text-base font-bold text-slate-900">
               {report.title}
             </h2>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs leading-relaxed text-slate-600">
               {report.description}
             </p>
 
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2 text-xs text-slate-400">
+            <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-400">
               <span className="flex items-center gap-1.5">
                 <MapPin size={13} />
                 {report.location?.label || "Unspecified Location"}
@@ -206,9 +203,8 @@ export default function RecordDetail() {
           </>
         )}
 
-        {/* ADMIN STATUS CONTROLS */}
         {isAdmin && (
-          <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 bg-amber-50/50 p-3 rounded-lg border border-amber-200">
+          <div className="mt-4 space-y-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
               <ShieldCheck size={15} />
               <span>Admin Moderation: Change Status</span>
@@ -217,11 +213,12 @@ export default function RecordDetail() {
               {["Pending", "In Progress", "Resolved"].map((st) => (
                 <button
                   key={st}
+                  type="button"
                   onClick={() => handleStatusChange(st)}
-                  className={`flex-1 rounded-lg py-1.5 text-xs font-semibold cursor-pointer border transition ${
+                  className={`flex-1 cursor-pointer rounded-lg border py-1.5 text-xs font-semibold transition ${
                     report.status === st
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   {st}
