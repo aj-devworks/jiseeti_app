@@ -1,94 +1,166 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { getReports } from "../data/mockReports";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldAlert,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-const DEFAULT_CENTER = [-1.286389, 36.817223];
+export default function Login() {
+  const [role, setRole] = useState("citizen");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
-export default function MapView() {
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const mapContainerRef = useRef(null);
-  const mapInstanceRef = useRef(null);
 
-  useEffect(() => {
-    if (mapInstanceRef.current || !mapContainerRef.current) return;
+  function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
 
-    const reports = getReports();
-    const map = L.map(mapContainerRef.current).setView(DEFAULT_CENTER, 13);
-    mapInstanceRef.current = map;
+    if (!email.trim() || !password) {
+      setError("Please enter both your email and password.");
+      return;
+    }
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap",
-    }).addTo(map);
-
-    reports.forEach((item) => {
-      const color =
-        item.status === "Resolved"
-          ? "#10b981"
-          : item.status === "In Progress"
-            ? "#f59e0b"
-            : "#f43f5e";
-
-      const customIcon = L.divIcon({
-        className: "custom-pin",
-        html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-        iconSize: [16, 16],
-      });
-
-      const popup = `
-        <div style="font-family: sans-serif; padding: 2px;">
-          <strong style="color:${color}; font-size:10px; text-transform:uppercase;">${item.status}</strong>
-          <h4 style="margin:2px 0; font-size:12px; font-weight:bold;">${item.title}</h4>
-          <p style="margin:0; font-size:10px; color:#64748b;">${item.location?.label || ""}</p>
-        </div>
-      `;
-
-      L.marker([item.lat, item.lng], { icon: customIcon })
-        .addTo(map)
-        .bindPopup(popup);
-    });
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
+    login(email, "", role);
+    navigate(role === "admin" ? "/admin" : "/home");
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-slate-500 hover:text-slate-800 cursor-pointer"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <h1 className="text-sm font-bold text-slate-900">
-            Interactive Map View
+    <div className="flex min-h-[80vh] items-center justify-center px-4 py-6">
+      <div className="w-full max-w-md space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        {/* Header */}
+        <div className="space-y-2 text-center">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <ShieldAlert size={24} />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            Sign In
           </h1>
+          <p className="text-xs text-slate-500">
+            Select your account role to continue to the portal.
+          </p>
         </div>
 
-        <div className="flex gap-2 text-[10px] font-semibold flex-wrap">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-rose-500"></span>Pending
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span>Active
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Resolved
-          </span>
-        </div>
-      </div>
+        {error && (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center text-xs font-medium text-rose-600">
+            {error}
+          </div>
+        )}
 
-      <div className="h-[280px] sm:h-[350px] md:h-[420px] w-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm relative z-0">
-        <div ref={mapContainerRef} className="h-full w-full" />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Role Choice Toggle */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Sign In As
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("citizen")}
+                className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-semibold transition ${
+                  role === "citizen"
+                    ? "border-indigo-600 bg-indigo-50 text-indigo-600"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <User size={14} />
+                <span>Citizen</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRole("admin")}
+                className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-semibold transition ${
+                  role === "admin"
+                    ? "border-indigo-600 bg-indigo-50 text-indigo-600"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <ShieldCheck size={14} />
+                <span>Gov Official</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pr-3 pl-9 text-xs text-slate-900 placeholder:text-slate-400 transition focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Password
+            </label>
+            <div className="relative">
+              <Lock
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2.5 pr-10 pl-9 text-xs text-slate-900 placeholder:text-slate-400 transition focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            <span>
+              Sign In as {role === "admin" ? "Gov Official" : "Citizen"}
+            </span>
+            <ArrowRight size={14} />
+          </button>
+        </form>
+
+        <p className="border-t border-slate-100 pt-2 text-center text-xs text-slate-500">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-indigo-600 hover:text-indigo-700"
+          >
+            Create account
+          </Link>
+        </p>
       </div>
     </div>
   );
