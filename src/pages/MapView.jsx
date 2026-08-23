@@ -10,7 +10,7 @@ const DEFAULT_CENTER = [-1.286389, 36.817223];
 export default function MapView() {
   const navigate = useNavigate();
   const mapContainerRef = useRef(null);
-  const mapInstanceRef = useRef(null); // <-- Added missing 'const' here
+  const mapInstanceRef = useRef(null);
 
   useEffect(() => {
     if (mapInstanceRef.current || !mapContainerRef.current) return;
@@ -60,7 +60,7 @@ export default function MapView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(-1)}
@@ -73,7 +73,7 @@ export default function MapView() {
           </h1>
         </div>
 
-        <div className="flex gap-2 text-[10px] font-semibold">
+        <div className="flex gap-2 text-[10px] font-semibold flex-wrap">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-rose-500"></span>Pending
           </span>
@@ -87,7 +87,7 @@ export default function MapView() {
         </div>
       </div>
 
-      <div className="h-[420px] w-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm relative z-0">
+      <div className="h-[280px] sm:h-[350px] md:h-[420px] w-full rounded-2xl border border-slate-200 overflow-hidden shadow-sm relative z-0">
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
     </div>

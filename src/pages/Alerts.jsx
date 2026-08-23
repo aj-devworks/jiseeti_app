@@ -19,7 +19,9 @@ export default function Alerts() {
   return (
     <div className="space-y-4">
       <div className="border-b border-slate-200 pb-3">
-        <h1 className="text-base font-bold text-slate-900">Municipal Alerts</h1>
+        <h1 className="text-sm sm:text-base font-bold text-slate-900">
+          Municipal Alerts
+        </h1>
         <p className="text-xs text-slate-500">Official public advisories</p>
       </div>
 
@@ -27,14 +29,16 @@ export default function Alerts() {
         {alerts.map((a) => (
           <div
             key={a.id}
-            className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-1"
+            className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-xs space-y-1"
           >
-            <div className="flex items-center justify-between text-indigo-600">
-              <span className="flex items-center gap-1.5 text-xs font-bold">
-                <Bell size={14} />
-                {a.title}
+            <div className="flex items-center justify-between gap-2 text-indigo-600">
+              <span className="flex items-center gap-1.5 text-xs font-bold min-w-0">
+                <Bell size={14} className="shrink-0" />
+                <span className="truncate">{a.title}</span>
               </span>
-              <span className="text-[10px] text-slate-400">{a.time}</span>
+              <span className="text-[10px] text-slate-400 shrink-0">
+                {a.time}
+              </span>
             </div>
             <p className="text-xs text-slate-600">{a.body}</p>
           </div>
