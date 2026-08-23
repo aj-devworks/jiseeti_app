@@ -20,7 +20,8 @@ export default function App() {
       <BrowserRouter>
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
           <Navbar />
-          <main className="mx-auto max-w-2xl px-4 pt-2 pb-24">
+          {/* Container updated from max-w-2xl to max-w-6xl for responsive desktop scaling */}
+          <main className="mx-auto max-w-6xl px-4 pt-4 pb-24 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<HomeFeed />} />
