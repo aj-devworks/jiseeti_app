@@ -1,31 +1,30 @@
 import { createContext, useContext, useState } from "react";
+import { apiLogin, apiSignup, clearSession, getStoredUser } from "../api";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem("jiseti_auth_user");
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(() => getStoredUser());
 
-  const login = (email, name, role = "citizen") => {
-    const displayName = name?.trim() || email.split("@")[0] || "User";
-    const newUser = { name: displayName, email, role };
+  const login = async (email, password, role) => {
+    const loggedInUser = await apiLogin({ email, password });
+    setUser(loggedInUser);
+    return loggedInUser;
+  };
+
+  const signup = async (email, name, role, password) => {
+    const newUser = await apiSignup({ name, email, password, role });
     setUser(newUser);
-    localStorage.setItem("jiseti_auth_user", JSON.stringify(newUser));
+    return newUser;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("jiseti_auth_user");
+    clearSession();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

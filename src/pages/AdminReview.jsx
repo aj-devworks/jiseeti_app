@@ -8,16 +8,20 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getReports, updateReportStatus } from "../data/mockReports";
+import { apiGetReports, apiUpdateReportStatus } from "../api";
 import StatusBadge from "../components/StatusBadge";
 
 export default function AdminReview() {
   const { user } = useAuth();
   const [reports, setReports] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setReports(getReports());
-  }, []);
+    if (user?.role !== "admin") return;
+    apiGetReports()
+      .then(setReports)
+      .catch((err) => setError(err.message || "Could not load reports."));
+  }, [user]);
 
   if (user?.role !== "admin") {
     return (
@@ -40,9 +44,15 @@ export default function AdminReview() {
     );
   }
 
-  function handleStatusChange(id, status) {
-    const updated = updateReportStatus(id, status);
-    setReports(updated);
+  async function handleStatusChange(id, status) {
+    try {
+      const updatedReport = await apiUpdateReportStatus(id, status);
+      setReports((prev) =>
+        prev.map((r) => (r.id === updatedReport.id ? updatedReport : r)),
+      );
+    } catch (err) {
+      setError(err.message || "Could not update status.");
+    }
   }
 
   const pendingCount = reports.filter((r) => r.status === "Pending").length;
@@ -94,6 +104,12 @@ export default function AdminReview() {
           </p>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center text-xs font-medium text-rose-600">
+          {error}
+        </div>
+      )}
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">

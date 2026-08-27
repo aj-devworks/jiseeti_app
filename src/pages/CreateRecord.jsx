@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Navigation, Camera, Loader2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { createReport, REPORT_TYPES } from "../data/mockReports";
+import { apiCreateReport } from "../api";
+
+const REPORT_TYPES = { RED_FLAG: "Red-flag", INTERVENTION: "Intervention" };
 
 export default function CreateRecord() {
   const navigate = useNavigate();
@@ -15,6 +17,9 @@ export default function CreateRecord() {
   const [coords, setCoords] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -46,26 +51,33 @@ export default function CreateRecord() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
+    setError("");
+    setIsSubmitting(true);
 
-    createReport({
-      type,
-      title,
-      description,
-      locationLabel,
-      lat: coords?.lat,
-      lng: coords?.lng,
-      imageUrl: imagePreview,
-    });
-    navigate("/home");
+    try {
+      await apiCreateReport({
+        type,
+        title,
+        description,
+        locationLabel,
+        photoFile,
+      });
+      navigate("/home");
+    } catch (err) {
+      setError(err.message || "Could not submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -205,11 +217,18 @@ export default function CreateRecord() {
           )}
         </div>
 
+        {error && (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center text-xs font-medium text-rose-600">
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full cursor-pointer rounded-xl bg-indigo-600 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          disabled={isSubmitting}
+          className="w-full cursor-pointer rounded-xl bg-indigo-600 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
         >
-          Submit Report
+          {isSubmitting ? "Submitting..." : "Submit Report"}
         </button>
       </form>
     </div>

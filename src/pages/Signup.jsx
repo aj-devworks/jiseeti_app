@@ -20,10 +20,11 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -37,8 +38,15 @@ export default function Signup() {
       return;
     }
 
-    login(email, name, role);
-    navigate(role === "admin" ? "/admin" : "/home");
+    setIsSubmitting(true);
+    try {
+      const newUser = await signup(email, name, role, password);
+      navigate(newUser.role === "admin" ? "/admin" : "/home");
+    } catch (err) {
+      setError(err.message || "Signup failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -170,10 +178,13 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            disabled={isSubmitting}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
           >
             <span>
-              Register as {role === "admin" ? "Gov Official" : "Citizen"}
+              {isSubmitting
+                ? "Creating account..."
+                : `Register as ${role === "admin" ? "Gov Official" : "Citizen"}`}
             </span>
             <ArrowRight size={14} />
           </button>

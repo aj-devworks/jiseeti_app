@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
-import { REPORT_TYPES } from "../data/mockReports";
+const REPORT_TYPES = { RED_FLAG: "Red-flag", INTERVENTION: "Intervention" };
 
 function timeAgo(dateString) {
   const days = Math.floor(
