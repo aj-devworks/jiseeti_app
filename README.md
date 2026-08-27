@@ -8,11 +8,11 @@ A civic issue reporting and community engagement platform. Citizens submit repor
 
 ## Tech Stack
 
-| Layer | Stack |
-|---|---|
-| Frontend | React, Vite, Tailwind CSS, PostCSS |
-| Backend | Flask 3, PostgreSQL, SQLAlchemy, Flask-Migrate, JWT auth, Bcrypt |
-| Testing | Vitest + React Testing Library (frontend), pytest (backend) |
+| Layer    | Stack                                                            |
+| -------- | ---------------------------------------------------------------- |
+| Frontend | React, Vite, Tailwind CSS, PostCSS                               |
+| Backend  | Flask 3, PostgreSQL, SQLAlchemy, Flask-Migrate, JWT auth, Bcrypt |
+| Testing  | Vitest + React Testing Library (frontend), pytest (backend)      |
 
 ---
 
@@ -21,6 +21,7 @@ A civic issue reporting and community engagement platform. Citizens submit repor
 Run both servers in separate terminals.
 
 **Backend** (`jiseeti_backend/`):
+
 ```bash
 cd jiseeti_backend
 python3 -m venv venv
@@ -34,6 +35,7 @@ flask run
 ```
 
 **Frontend** (`Frontend/`):
+
 ```bash
 cd Frontend
 npm install
@@ -75,21 +77,21 @@ JWT bearer tokens. Signup/login return a token; send it as `Authorization: Beare
 
 ### API Routes
 
-| Method | Route | Auth | Description |
-|---|---|---|---|
-| POST | `/auth/signup` | — | Create account (`full_name`, `email`, `password`, `role`) |
-| POST | `/auth/login` | — | Get a token |
-| GET | `/reports` | — | List reports, optional `?status=pending\|in-progress\|resolved` |
-| GET | `/reports/:id` | — | Single report |
-| POST | `/reports` | citizen | Create report (JSON or multipart with `photo`) |
-| PATCH | `/reports/:id` | owner | Edit own report (pending only) |
-| DELETE | `/reports/:id` | owner | Delete own report |
-| POST | `/reports/:id/upvote` | any user | Toggle upvote |
-| GET | `/alerts` | — | List municipal alerts |
-| POST | `/alerts` | official | Create an alert |
-| GET | `/admin/stats` | official | Pending/in-progress/resolved counts |
-| PATCH | `/admin/reports/:id/status` | official | Change a report's status |
-| GET | `/uploads/:filename` | — | Serve an uploaded photo |
+| Method | Route                       | Auth     | Description                                                     |
+| ------ | --------------------------- | -------- | --------------------------------------------------------------- |
+| POST   | `/auth/signup`              | —        | Create account (`full_name`, `email`, `password`, `role`)       |
+| POST   | `/auth/login`               | —        | Get a token                                                     |
+| GET    | `/reports`                  | —        | List reports, optional `?status=pending\|in-progress\|resolved` |
+| GET    | `/reports/:id`              | —        | Single report                                                   |
+| POST   | `/reports`                  | citizen  | Create report (JSON or multipart with `photo`)                  |
+| PATCH  | `/reports/:id`              | owner    | Edit own report (pending only)                                  |
+| DELETE | `/reports/:id`              | owner    | Delete own report                                               |
+| POST   | `/reports/:id/upvote`       | any user | Toggle upvote                                                   |
+| GET    | `/alerts`                   | —        | List municipal alerts                                           |
+| POST   | `/alerts`                   | official | Create an alert                                                 |
+| GET    | `/admin/stats`              | official | Pending/in-progress/resolved counts                             |
+| PATCH  | `/admin/reports/:id/status` | official | Change a report's status                                        |
+| GET    | `/uploads/:filename`        | —        | Serve an uploaded photo                                         |
 
 ### Data Model
 
@@ -100,11 +102,11 @@ JWT bearer tokens. Signup/login return a token; send it as `Authorization: Beare
 
 ### Environment Variables (`jiseeti_backend/.env`)
 
-| Variable | Purpose |
-|---|---|
-| `SECRET_KEY` | Flask secret |
-| `JWT_SECRET_KEY` | JWT signing key |
-| `DATABASE_URL` | Postgres connection string |
+| Variable            | Purpose                              |
+| ------------------- | ------------------------------------ |
+| `SECRET_KEY`        | Flask secret                         |
+| `JWT_SECRET_KEY`    | JWT signing key                      |
+| `DATABASE_URL`      | Postgres connection string           |
 | `TEST_DATABASE_URL` | Postgres connection string for tests |
 
 ### Backend Testing
@@ -133,10 +135,3 @@ npm test
 ```
 
 ---
-
-## Team Roles
-
-- **Abdinasir** — Backend (auth, models, routes, migrations) + Frontend Auth & Profile (`AuthContext`, `Login`, `Signup`, `Profile`)
-- **Sir Alex** — Navigation & Core Logic (`App`, `Navbar`, `BottomNav`, `ReportCard`, `StatusBadge`, `CreateRecord`, `RecordDetail`)
-- **Rehema** — Feeds & Dashboards (`HomeFeed`, `MapView`, `Alerts`, `AdminReview`)
-- **Brian** — QA & Testing (frontend + backend test suites, end-to-end validation)
