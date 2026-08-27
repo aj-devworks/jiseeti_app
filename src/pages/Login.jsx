@@ -21,8 +21,9 @@ export default function Login() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -31,8 +32,15 @@ export default function Login() {
       return;
     }
 
-    login(email, "", role);
-    navigate(role === "admin" ? "/admin" : "/home");
+    setIsSubmitting(true);
+    try {
+      const loggedInUser = await login(email, password, role);
+      navigate(loggedInUser.role === "admin" ? "/admin" : "/home");
+    } catch (err) {
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -143,10 +151,13 @@ export default function Login() {
 
           <button
             type="submit"
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            disabled={isSubmitting}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
           >
             <span>
-              Sign In as {role === "admin" ? "Gov Official" : "Citizen"}
+              {isSubmitting
+                ? "Signing in..."
+                : `Sign In as ${role === "admin" ? "Gov Official" : "Citizen"}`}
             </span>
             <ArrowRight size={14} />
           </button>

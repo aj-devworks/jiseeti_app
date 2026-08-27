@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
-  getReportById,
-  updateReportDetails,
-  deleteReport,
-  updateReportStatus,
-} from "../data/mockReports";
+  apiGetReportById,
+  apiUpdateReportDetails,
+  apiDeleteReport,
+  apiUpdateReportStatus,
+} from "../api";
 import StatusBadge from "../components/StatusBadge";
 
 export default function RecordDetail() {
@@ -26,25 +26,33 @@ export default function RecordDetail() {
 
   const [report, setReport] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
 
   const [editTitle, setEditTitle] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editLocation, setEditLocation] = useState("");
 
   useEffect(() => {
-    const data = getReportById(id);
-    if (data) {
-      setReport(data);
-      setEditTitle(data.title);
-      setEditDesc(data.description);
-      setEditLocation(data.location?.label || "");
-    }
+    apiGetReportById(id)
+      .then((data) => {
+        setReport(data);
+        setEditTitle(data.title);
+        setEditDesc(data.description);
+        setEditLocation(data.location?.label || "");
+      })
+      .catch((err) => setError(err.message || "Report not found."));
   }, [id]);
+
+  if (error) {
+    return (
+      <div className="p-8 text-center text-xs text-rose-500">{error}</div>
+    );
+  }
 
   if (!report) {
     return (
       <div className="p-8 text-center text-xs text-slate-400">
-        Report record not found.
+        Loading report...
       </div>
     );
   }
@@ -52,32 +60,39 @@ export default function RecordDetail() {
   const isCitizen = user?.role === "citizen" || !user?.role;
   const isAdmin = user?.role === "admin";
 
-  function handleSaveDetails(e) {
+  async function handleSaveDetails(e) {
     e.preventDefault();
-    updateReportDetails(id, {
-      title: editTitle,
-      description: editDesc,
-      locationLabel: editLocation,
-    });
-    setReport({
-      ...report,
-      title: editTitle,
-      description: editDesc,
-      location: { label: editLocation },
-    });
-    setIsEditing(false);
-  }
-
-  function handleDelete() {
-    if (confirm("Are you sure you want to delete this report?")) {
-      deleteReport(id);
-      navigate("/home");
+    try {
+      const updated = await apiUpdateReportDetails(id, {
+        title: editTitle,
+        description: editDesc,
+        locationLabel: editLocation,
+      });
+      setReport(updated);
+      setIsEditing(false);
+    } catch (err) {
+      setError(err.message || "Could not save changes.");
     }
   }
 
-  function handleStatusChange(newStatus) {
-    updateReportStatus(id, newStatus);
-    setReport({ ...report, status: newStatus });
+  async function handleDelete() {
+    if (confirm("Are you sure you want to delete this report?")) {
+      try {
+        await apiDeleteReport(id);
+        navigate("/home");
+      } catch (err) {
+        setError(err.message || "Could not delete report.");
+      }
+    }
+  }
+
+  async function handleStatusChange(newStatus) {
+    try {
+      const updated = await apiUpdateReportStatus(id, newStatus);
+      setReport(updated);
+    } catch (err) {
+      setError(err.message || "Could not update status.");
+    }
   }
 
   return (

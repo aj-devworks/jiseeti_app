@@ -3,9 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { getReports } from "../data/mockReports";
+import { apiGetReports } from "../api";
 
 const DEFAULT_CENTER = [-1.286389, 36.817223];
+
+// Backend doesn't store lat/lng yet, so derive a stable pseudo-position
+// per report id so pins don't jump around between renders.
+function fallbackCoords(id) {
+  const seed = String(id)
+    .split("")
+    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const jitter = ((seed % 100) / 100 - 0.5) * 0.02;
+  const jitter2 = (((seed * 7) % 100) / 100 - 0.5) * 0.02;
+  return [DEFAULT_CENTER[0] + jitter, DEFAULT_CENTER[1] + jitter2];
+}
 
 const STATUS_COLORS = {
   Resolved: "#10b981",
@@ -21,7 +32,6 @@ export default function MapView() {
   useEffect(() => {
     if (mapInstanceRef.current || !mapContainerRef.current) return;
 
-    const reports = getReports();
     const map = L.map(mapContainerRef.current).setView(DEFAULT_CENTER, 13);
     mapInstanceRef.current = map;
 
@@ -29,26 +39,28 @@ export default function MapView() {
       attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
-    reports.forEach((item) => {
-      const color = STATUS_COLORS[item.status] || STATUS_COLORS.Pending;
+    apiGetReports().then((reports) => {
+      reports.forEach((item) => {
+        const color = STATUS_COLORS[item.status] || STATUS_COLORS.Pending;
+        const [lat, lng] =
+          item.lat && item.lng ? [item.lat, item.lng] : fallbackCoords(item.id);
 
-      const customIcon = L.divIcon({
-        className: "custom-pin",
-        html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
-        iconSize: [16, 16],
+        const customIcon = L.divIcon({
+          className: "custom-pin",
+          html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [16, 16],
+        });
+
+        const popup = `
+          <div style="font-family: sans-serif; padding: 2px;">
+            <strong style="color:${color}; font-size:10px; text-transform:uppercase;">${item.status}</strong>
+            <h4 style="margin:2px 0; font-size:12px; font-weight:bold;">${item.title}</h4>
+            <p style="margin:0; font-size:10px; color:#64748b;">${item.location?.label || ""}</p>
+          </div>
+        `;
+
+        L.marker([lat, lng], { icon: customIcon }).addTo(map).bindPopup(popup);
       });
-
-      const popup = `
-        <div style="font-family: sans-serif; padding: 2px;">
-          <strong style="color:${color}; font-size:10px; text-transform:uppercase;">${item.status}</strong>
-          <h4 style="margin:2px 0; font-size:12px; font-weight:bold;">${item.title}</h4>
-          <p style="margin:0; font-size:10px; color:#64748b;">${item.location?.label || ""}</p>
-        </div>
-      `;
-
-      L.marker([item.lat, item.lng], { icon: customIcon })
-        .addTo(map)
-        .bindPopup(popup);
     });
 
     return () => {

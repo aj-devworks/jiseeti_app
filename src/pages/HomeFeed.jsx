@@ -1,12 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Filter, Plus, MapPin, ThumbsUp } from "lucide-react";
-import { getReports } from "../data/mockReports";
+import { apiGetReports } from "../api";
 import StatusBadge from "../components/StatusBadge";
 
 export default function HomeFeed() {
   const [filter, setFilter] = useState("All");
-  const reports = getReports();
+  const [reports, setReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    apiGetReports()
+      .then((data) => {
+        if (!cancelled) setReports(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || "Could not load reports.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredReports = reports.filter((report) => {
     if (filter === "All") return true;
@@ -64,9 +84,21 @@ export default function HomeFeed() {
         </span>
       </div>
 
+      {error && (
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center text-xs font-medium text-rose-600">
+          {error}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="p-8 text-center text-xs text-slate-400">
+          Loading reports...
+        </div>
+      )}
+
       {/* Responsive Grid Layout: 1 col on mobile, 2 cols on tablet, 3 cols on desktop */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredReports.map((item) => (
+        {!isLoading && filteredReports.map((item) => (
           <Link
             key={item.id}
             to={`/record/${item.id}`}

@@ -7,15 +7,23 @@ import {
   Award,
   FileText,
 } from "lucide-react";
-import { getReports } from "../data/mockReports";
+import { useEffect, useState } from "react";
+import { apiGetReports } from "../api";
 
 export default function Profile() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const reports = getReports();
+  const [reports, setReports] = useState([]);
+
+  useEffect(() => {
+    apiGetReports().then(setReports).catch(() => setReports([]));
+  }, []);
 
   const totalReports = reports.length;
   const resolvedReports = reports.filter((r) => r.status === "Resolved").length;
+  const myReports = reports.filter((r) => r.userId === user?.id);
+  const myTotalReports = myReports.length;
+  const myImpactPoints = myReports.reduce((sum, r) => sum + (r.upvotes || 0), 0);
 
   if (isAdmin) {
     return (
@@ -115,13 +123,13 @@ export default function Profile() {
 
           <div className="grid grid-cols-2 gap-4 border-t border-indigo-100 pt-4 text-center">
             <div className="rounded-xl border border-indigo-100 bg-white p-4">
-              <p className="text-2xl font-bold text-slate-900">3</p>
+              <p className="text-2xl font-bold text-slate-900">{myTotalReports}</p>
               <p className="text-[10px] font-semibold uppercase text-slate-500">
                 Submitted Issues
               </p>
             </div>
             <div className="rounded-xl border border-indigo-100 bg-white p-4">
-              <p className="text-2xl font-bold text-indigo-600">22</p>
+              <p className="text-2xl font-bold text-indigo-600">{myImpactPoints}</p>
               <p className="text-[10px] font-semibold uppercase text-slate-500">
                 Community Impact Points
               </p>
