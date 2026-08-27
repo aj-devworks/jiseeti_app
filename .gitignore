@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend
+jiseeti_backend/venv/
+jiseeti_backend/__pycache__/
+jiseeti_backend/.pytest_cache/
+jiseeti_backend/uploads/
+jiseeti_backend/.env
+jiseeti_backend/**/__pycache__/
